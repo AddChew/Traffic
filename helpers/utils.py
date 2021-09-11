@@ -1,16 +1,21 @@
 import pickle
 import pandas as pd
+from typing import Tuple
 
 
 """
     Columns to include when loading the data from dot_traffic_2015.txt.gz
 
-    The columns record_type, restrictions and year_of_data were excluded as they did not contain any useful information
+    The columns record_type, restrictions, year_of_data and lane_of_travel were excluded
+    as they did not contain very useful information
 
     i.e. record_type: 3 for all the rows
          restrictions: blank for all rows
          year_of_data: 15 for all the rows
-         lane_of_travel: denotes which lane the sensor was placed at
+         lane_of_travel: denotes which lane(s) the data was collected from (not very useful as
+         its corresponds to either data with lanes combined, outside (rightmost) lane or 
+         other lanes and logically, data with lanes combined should have a higher recorded 
+         traffic volume as compared to the rest)
 """
 traffic_columns = ['date',
                  'day_of_data',
@@ -143,14 +148,35 @@ fips_state_full = {"01": "Alabama",
 
 class TrafficUtils:
     """
-        Perform basic data preprocessing and convert to pickle for faster load times
+        Perform basic data preprocessing and pickling for faster load times
+
+        Args
+        ----------
+        traffic_path: str (Optional, default dot_traffic_2015.txt.gz)
+                    file path to read from for the traffic dataset
+
+        station_path: str (Optional, default dot_traffic_stations_2015.txt.gz)
+                    file path to read from for the stations dataset      
+
+        traffic_pkl: str (Optional, default dot_traffic_2015.pkl.gz)
+                    pickle file path to save the traffic dataset to 
+
+        station_pkl: str (Optional, default dot_traffic_stations_2015.pkl)
+                    pickle file path to save the stations dataset to
+
+        mapping_pkl: str (Optional, default dot_mappings_2015.pkl)
+                    pickle file path to save the mappings to
+
+        Returns
+        ----------
+        None
     """
     def __init__(self, 
                  traffic_path: str = "dot_traffic_2015.txt.gz", 
                  station_path: str = "dot_traffic_stations_2015.txt.gz",
                  traffic_pkl: str = "dot_traffic_2015.pkl.gz", 
                  station_pkl: str = "dot_traffic_stations_2015.pkl", 
-                 mapping_pkl: str = "dot_mappings_2015.pkl"):
+                 mapping_pkl: str = "dot_mappings_2015.pkl") -> None:
         
         self.traffic = pd.read_csv(traffic_path, usecols=traffic_columns)
         self.station = pd.read_csv(station_path, usecols=station_columns)
@@ -166,8 +192,23 @@ class TrafficUtils:
         
         
     @staticmethod
-    def pad_fips_state(df: pd.DataFrame, fipscol: str):
+    def pad_fips_state(df: pd.DataFrame, fipscol: str) -> pd.DataFrame:
         """
+            Convert fips_state_code to string and pad it with leading 0s
+            to make it 2 digits long
+
+            Args
+            ----------
+            df: pd.DataFrame
+                        input dataframe
+            
+            fipscol: str
+                        name of the column in the df that contains the fips_state_code
+
+            Returns
+            ----------
+            df: pd.DataFrame
+                        modified df with its fips_state_code stringed and padded 
         """
         # Add leading 0s to make fips_state_code 2 digits long
         df[fipscol] = df[fipscol].astype(str).str.zfill(2)
@@ -175,8 +216,15 @@ class TrafficUtils:
         return df
     
         
-    def create_mappings(self):
+    def create_mappings(self) -> None:
         """
+            Create mappings between the numerical encoding of categorical variables (i.e.
+            direction_of_travel and functional_classification) and the full names of their
+            categories
+
+            Returns
+            ----------
+            None
         """
         # Create direction_of_travel: direction_of_travel_name mapping
         self.create_mapping(self.traffic, "direction_of_travel", "direction_of_travel_name")
@@ -185,8 +233,29 @@ class TrafficUtils:
         self.create_mapping(self.traffic, "functional_classification", "functional_classification_name")
         
     
-    def create_mapping(self, df: pd.DataFrame, keycol: str, valuecol: str, feature_name: str = None):
+    def create_mapping(self, df: pd.DataFrame, keycol: str, valuecol: str, feature_name: str = None) -> None:
         """
+            Creates mapping between the numerical encoding of the selected categorical variable and the
+            full names of its categories
+
+            Args
+            ----------
+            df: pd.DataFrame
+                        input dataframe containing the categorical variables
+
+            keycol: str
+                        name of the column in df that contains the numerical encoding
+
+            valuecol: str
+                        name of the column in df that contains the full name of the category
+
+            feature_name: str (Optional, default None)
+                        key to use for saving the created mapping to master mappings 
+                        (i.e. self.mappings[feature_name] = created_mapping)
+
+            Returns
+            ----------
+            None            
         """
         # Drop duplicate rows based on both keycol and valuecol
         df_unique = df[[keycol, valuecol]].drop_duplicates()
@@ -209,8 +278,24 @@ class TrafficUtils:
         df.drop(columns=[valuecol], inplace=True)
 
     
-    def convert_to_pickle(self, traffic_pkl: str, station_pkl: str, mapping_pkl: str):
+    def convert_to_pickle(self, traffic_pkl: str, station_pkl: str, mapping_pkl: str) -> None:
         """
+            Save the traffic dataset, stations dataset and mappings to pickle files
+
+            Args:
+            ----------
+            traffic_pkl: str 
+                        pickle file path to save the traffic dataset to 
+
+            station_pkl: str 
+                        pickle file path to save the stations dataset to
+
+            mapping_pkl: str 
+                        pickle file path to save the mappings to
+
+            Returns
+            ----------
+            None
         """
         self.traffic.to_pickle(traffic_pkl)
         self.station.to_pickle(station_pkl)
@@ -223,11 +308,48 @@ def load_data(traffic_pkl: str = "datasets/dot_traffic_2015.pkl.gz",
               station_pkl: str = "datasets/dot_traffic_stations_2015.pkl", 
               mapping_pkl: str = "datasets/dot_mappings_2015.pkl",
               traffic_path: str = "datasets/dot_traffic_2015.txt.gz", 
-              station_path: str = "datasets/dot_traffic_stations_2015.txt.gz"):
+              station_path: str = "datasets/dot_traffic_stations_2015.txt.gz"
+              ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
+        Load the pickled traffic dataset, stations dataset and mappings. 
+        
+        If the pickled files do not exist, then:
+
+            1) Load the original text file datasets
+            2) Perform basic preprocessing
+            3) Pickle the datasets
+            4) Try to load the pickled datasets again
+
+        Args
+        ----------
+        traffic_pkl: str (Optional, default datasets/dot_traffic_2015.pkl.gz)
+                    pickle file path to load the traffic dataset from
+
+        station_pkl: str (Optional, default datasets/dot_traffic_stations_2015.pkl)
+                    pickle file path to load the stations dataset from
+
+        mapping_pkl: str (Optional, default datasets/dot_mappings_2015.pkl)
+                    pickle file path to load the mappings from   
+
+        traffic_path: str (Optional, default datasets/dot_traffic_2015.txt.gz)
+                    text file path to read from for the original traffic dataset
+
+        station_path: str (Optional, default datasets/dot_traffic_stations_2015.txt.gz)
+                    text file path to read from for the original stations dataset
+
+        Returns
+        ----------
+        (traffic, station, mappings): tuple of 3 pd.DataFrame
+                    the traffic dataset, stations dataset and mappings
     """
-    def load_pickle():
+    def load_pickle() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         """
+            Load the pickled datasets
+
+            Returns
+            ----------
+            (traffic, station, mappings): tuple of 3 pd.DataFrame
+                    the traffic dataset, stations dataset and mappings
         """
         traffic = pd.read_pickle(traffic_pkl)
         station = pd.read_pickle(station_pkl)
@@ -241,5 +363,6 @@ def load_data(traffic_pkl: str = "datasets/dot_traffic_2015.pkl.gz",
         return load_pickle()
         
     except:
+        # Perform basic preprocessing and pickle the traffic dataset, stations dataset and mappings
         TrafficUtils(traffic_path, station_path, traffic_pkl, station_pkl, mapping_pkl)
         return load_pickle()
