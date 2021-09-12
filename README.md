@@ -14,7 +14,9 @@ $ jupyter notebook
 #### To view the Jupyter Notebook version of the analyis results:
 - From the Home Page of the Jupyter Notebook, navigate to and open Top 5 Patterns.ipynb from the traffic folder.
 #### To view the HTML version of the analyis results:
-- From the traffic folder, navigate to and open Top 5 Patterns.html.
+- Download Top 5 Patterns.html from this repository and open it in your browser.
+#### To view the helper scripts used in Top 5 Patterns.ipynb:
+- Navigate to and open utils.py in traffic/helpers folder.
 
 ## Folders and Files
 ### Folders
