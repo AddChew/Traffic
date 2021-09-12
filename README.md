@@ -1,7 +1,7 @@
-# Traffic Patterns in US Traffic 2015 Dataset
-
+# 2015 US Traffic Patterns
+This project analyses the top 5 most obvious patterns in US Traffic 2015 dataset.
 ## Installation Instructions
-The following steps are required only if you want to run the .ipynb and .py files on your local machine.
+The steps here are required only if you want to run the Jupyter Notebook (i.e. .ipynb and .py files) on your local machine.
 #### To run the scripts on your local machine (Assumes that you already have an existing anaconda (Windows/Mac) or conda installation (Linux), with Python installed):
 ```
 git clone 
@@ -11,8 +11,10 @@ pip install notebook # Can skip this if you already have Jupyter Notebook instal
 jupyter notebook
 ```
 ## Viewing Instructions
-To view the Jupyter Notebook containing the analyis results:
-<br>From the Home Page of the Jupyter Notebook, navigate to Top 5 Patterns.ipynb in the traffic folder and launch it
+#### To view the Jupyter Notebook version of the analyis results:
+- From the Home Page of the Jupyter Notebook, navigate to and open Top 5 Patterns.ipynb from the traffic folder
+#### To view the HTML version of the analyis results:
+- From the traffic folder, navigate to and open Top 5 Patterns.html 
 
 ## Folders and Files
 ### Folders
