@@ -1,7 +1,7 @@
 # 2015 US Traffic Patterns
 This project analyses the top 5 most obvious patterns in US Traffic 2015 dataset.
 ## Installation Instructions
-The steps here are required only if you want to view/run the Jupyter Notebook (i.e. .ipynb and .py files) on your local machine. If not, you can just proceed to Viewing Instructions: To view the HTML version of the analyis results, which does not require any prior setup.
+The steps here are required only if you want to view/run the Jupyter Notebook (i.e. .ipynb and .py files) on your local machine. If not, you can just proceed to ***Viewing Instructions: To view the HTML version of the analyis results***, which does not require any prior setup.
 #### To run the scripts on your local machine (Assumes that you already have an existing anaconda (Windows/Mac) or conda installation (Linux), with Python installed):
 ```
 $ git clone https://github.com/AddChew/Traffic.git
@@ -25,12 +25,12 @@ datasets:
 > - The pickled mapping dictionary (dot_mappings_2015.pkl)
 >
 helpers: 
-> Contains utils.py which contains helper classes and functions for cleaning (i.e. removal of columns) and pickling the datasets
+> - Contains utils.py which contains helper classes and functions for cleaning (i.e. removal of columns) and pickling the datasets
 >
 ### Files
 Top 5 Patterns.ipynb
-> Jupyter Notebook containing the analysis results
+> - Jupyter Notebook containing the analysis results
 > 
 Top 5 Patterns.html
-> HTML version of Top 5 Patterns.ipynb
+> - HTML version of Top 5 Patterns.ipynb
 > 
