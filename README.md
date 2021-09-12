@@ -13,6 +13,7 @@ $ jupyter notebook
 ## Viewing Instructions
 #### To view the Jupyter Notebook version of the analyis results:
 - From the Home Page of the Jupyter Notebook, navigate to and open Top 5 Patterns.ipynb from the traffic folder.
+- Run all the cells in the notebook (Need to do this step to view the interactive visualizations)
 #### To view the HTML version of the analyis results:
 - Download Top 5 Patterns.html from this repository and open it in your browser.
 #### To view the helper scripts used in Top 5 Patterns.ipynb:
